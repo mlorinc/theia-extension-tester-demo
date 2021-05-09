@@ -5,19 +5,23 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "che:test": "TESTER_LIB=theia-extension-tester node -r './out/bootstrap.js' out/che.runner.js out/tests/Simple.test.js",
+    "che:test": "TESTER_LIB=theia-extension-tester node -r './out/bootstrap.js' -r dotenv/config out/che.runner.js out/tests/*.test.js",
+    "che:refresh": "npm rm theia-extension-tester && npm install file:../theia-extension-tester/theia-extension-tester-1.0.0.tgz",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "vscode:test": "TESTER_LIB=vscode-extension-tester node -r './out/bootstrap.js' out/vscode.runner.js"
+    "vscode:test": "TESTER_LIB=vscode-extension-tester node -r './out/bootstrap.js' out/vscode.runner.js",
+    "page-objects:refresh": "cd ../extension-tester-page-objects && npm pack",
+    "theia-extension-tester:refresh": "cd ../theia-extension-tester && npm run page-objects:refresh && npm pack",
+    "all:refresh": "npm run page-objects:refresh && npm run theia-extension-tester:refresh && npm run che:refresh"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "chai": "^4.3.0",
+    "dotenv": "^8.2.0",
     "fs-extra": "^9.1.0",
     "mocha": "^8.3.0",
-    "theia-extension-tester": "file:../theia-extension-tester/theia-extension-tester-1.0.0.tgz",
-    "vscode-extension-tester": "file:../vscode-extension-tester/vscode-extension-tester-4.0.1.tgz"
+    "theia-extension-tester": "file:../theia-extension-tester/theia-extension-tester-1.0.0.tgz"
   },
   "devDependencies": {
     "@types/chai": "^4.2.15",

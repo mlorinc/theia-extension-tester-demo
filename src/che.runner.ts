@@ -1,39 +1,51 @@
-import { CheBrowser, OpenShiftAuthenticator, WorkspaceTestRunner } from "theia-extension-tester";
+import { createBrowser, BrowserDistribution, OpenShiftAuthenticator, OpenShiftAuthenticatorMethod, CheTheiaFactoryRunner } from "theia-extension-tester";
 
 async function main() {
-    const browser = new CheBrowser({
-        // Test browser
-        browserName: "chrome",
-        // Eclipse Che URL
-        location: "https://che-eclipse-che.apps-crc.testing/",
-        // User credentials - used by Authenticator object
-        credentials: {
-            login: "developer",
-            password: "developer"
-        },
-        // Authenticator object logs in user into Eclipse Che
-        authenticator: new OpenShiftAuthenticator(),
-        // Selenium implicit timeouts
-        timeouts: {
-            implicit: 600000,
-            pageLoad: -1
-        }
+    if (process.env.CHE_USERNAME === undefined) {
+        console.error('CHE_USERNAME variable is missing in .env file.');
+        process.exit(1);
+    }
+
+    if (process.env.CHE_PASSWORD === undefined) {
+        console.error('CHE_PASSWORD variable is missing in .env file.');
+        process.exit(1);
+    }
+
+    const browser = createBrowser('chrome', {
+      distribution: BrowserDistribution.CODEREADY_WORKSPACES,
+      timeouts: {
+        implicit: 30000,
+        pageLoad: 250000
+      }
     });
 
-    const runner = new WorkspaceTestRunner(browser, {
-        // Eclipse Che workspace name - does not need to be exact
-        workspaceName: 'Apache Camel K',
-        // Use running workspace instead - changes workspace name to 'apache-camel-k'
-        useExistingWorkspace: true,
-        // Mocha test options
-        mochaOptions: {
-            bail: true
-        }
+    const authenticator = new OpenShiftAuthenticator({
+        inputData: [
+          {
+              name: 'username',
+              value: process.env.CHE_USERNAME
+          },
+          {
+              name: 'password',
+              value: process.env.CHE_PASSWORD
+          }
+      ],
+      multiStepForm: true,
+      loginMethod: OpenShiftAuthenticatorMethod.DEVSANDBOX
     });
-    
+
+    ////https://workspaces.openshift.com/f?url=https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com/devfile-registry/devfiles/03_java11-maven-quarkus/devfile.yaml&override.attributes.persistVolumes=false
+    const runner = new CheTheiaFactoryRunner(browser, {
+      cheUrl: 'https://workspaces.openshift.com/',
+      factoryUrl: 'https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com/devfile-registry/devfiles/03_java11-maven-quarkus/devfile.yaml',
+      mochaOptions: {
+        bail: true
+      }
+    }, authenticator);
+
     // Remove first element - program path
     const [, ...args] = process.argv;
-    process.exitCode = await runner.runTests(args);
+    process.exit(await runner.runTests(args));
 }
 
 main();

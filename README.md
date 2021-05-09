@@ -10,7 +10,7 @@ UI test creates new Simple.java integration, modifies time period, edits welcome
 1. Clone repository [mlorinc/vscode-extension-tester](https://github.com/mlorinc/vscode-extension-tester)
     1. run `npm install && npm pack`
 1. Clone repository: `git clone git@github.com:mlorinc/theia-extension-tester-demo.git`
-1. Install and compile typescript files: `npm install && npm run build`
+1. Install and compile typescript files: `npm install && npm run build` 
 
 ## Run tests
 
